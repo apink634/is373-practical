@@ -1,0 +1,19 @@
+# Deployment configuration. The workflow copies this to the server and sets
+# IMAGE, TAG, APP_ENV and SITE_HOST for each environment.
+services:
+  web:
+    image: ${IMAGE}:${TAG}
+    restart: unless-stopped
+    networks:
+      - hosting-web
+    labels:
+      - traefik.enable=true
+      - traefik.docker.network=hosting-web
+      - traefik.http.routers.${APP_ENV}.rule=Host(`${SITE_HOST}`)
+      - traefik.http.routers.${APP_ENV}.entrypoints=websecure
+      - traefik.http.routers.${APP_ENV}.tls=true
+      - traefik.http.services.${APP_ENV}.loadbalancer.server.port=80
+
+networks:
+  hosting-web:
+    external: true

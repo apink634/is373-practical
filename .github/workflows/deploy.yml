@@ -1,0 +1,71 @@
+name: CI/CD
+
+on:
+  push:
+    branches: [qa, main]
+  workflow_dispatch:
+
+env:
+  APP_ENV: ${{ github.ref_name == 'main' && 'production' || 'qa' }}
+  SITE_HOST: ${{ github.ref_name == 'main' && 'anncarlos.me' || 'qa.anncarlos.me' }}
+  IMAGE: ${{ secrets.DOCKERHUB_USERNAME }}/is373-site
+
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Validate and smoke-test the image
+        run: bash scripts/test.sh
+
+  build-and-push:
+    needs: test
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: docker/setup-buildx-action@v3
+      - uses: docker/login-action@v3
+        with:
+          username: ${{ secrets.DOCKERHUB_USERNAME }}
+          password: ${{ secrets.DOCKERHUB_TOKEN }}
+      - name: Build and push image
+        uses: docker/build-push-action@v6
+        with:
+          context: .
+          push: true
+          build-args: |
+            APP_ENV=${{ env.APP_ENV }}
+            GIT_SHA=${{ github.sha }}
+          tags: |
+            ${{ env.IMAGE }}:${{ env.APP_ENV }}-${{ github.sha }}
+            ${{ env.IMAGE }}:${{ env.APP_ENV }}
+
+  deploy:
+    needs: build-and-push
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Set up SSH
+        run: |
+          mkdir -p ~/.ssh
+          echo "${{ secrets.SSH_PRIVATE_KEY }}" > ~/.ssh/id_ed25519
+          chmod 600 ~/.ssh/id_ed25519
+          ssh-keyscan -H "${{ secrets.SSH_HOST }}" >> ~/.ssh/known_hosts
+      - name: Deploy to server
+        run: |
+          TARGET="${{ secrets.SSH_USER }}@${{ secrets.SSH_HOST }}"
+          ssh "$TARGET" "mkdir -p ~/deploy/${APP_ENV}"
+          scp compose.yaml "$TARGET:~/deploy/${APP_ENV}/compose.yaml"
+          ssh "$TARGET" "cd ~/deploy/${APP_ENV} && \
+            printf 'IMAGE=%s\nTAG=%s\nAPP_ENV=%s\nSITE_HOST=%s\n' \
+              '${IMAGE}' '${APP_ENV}-${GITHUB_SHA}' '${APP_ENV}' '${SITE_HOST}' > .env && \
+            docker compose pull && docker compose up -d --remove-orphans"
+      - name: Check the live site
+        run: |
+          for i in $(seq 1 30); do
+            if curl -fsS "https://${SITE_HOST}/" | grep -q "${GITHUB_SHA}"; then
+              echo "Live and serving commit ${GITHUB_SHA}"; exit 0
+            fi
+            sleep 5
+          done
+          echo "Site did not serve the new commit"; exit 1

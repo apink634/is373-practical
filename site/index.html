@@ -1,0 +1,32 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>anncarlos.me | __APP_ENV__</title>
+  <style>
+    :root { --bg: #f4f6f8; --ink: #14202b; --muted: #55636f; --accent: #0b6e4f; }
+    body[data-env="qa"] { --accent: #b45f06; }
+    * { box-sizing: border-box; }
+    body { margin: 0; min-height: 100vh; display: grid; place-items: center;
+           background: var(--bg); color: var(--ink);
+           font-family: Georgia, "Times New Roman", serif; }
+    main { width: min(40rem, 92vw); padding: 2rem 0; }
+    .env { display: inline-block; padding: .25rem .75rem; border: 2px solid var(--accent);
+           color: var(--accent); font: 700 1rem/1.4 system-ui, sans-serif; }
+    h1 { font-size: clamp(2.4rem, 8vw, 4.5rem); line-height: 1.05; margin: 1.25rem 0 1rem; }
+    p { font-size: 1.15rem; line-height: 1.6; color: var(--muted); max-width: 34rem; }
+    footer { margin-top: 2.5rem; font: .95rem/1.5 ui-monospace, Consolas, monospace; color: var(--muted); }
+    footer b { color: var(--ink); }
+  </style>
+</head>
+<body data-env="__APP_ENV__">
+  <main>
+    <span class="env">__APP_ENV__</span>
+    <h1>Shipped by a pipeline, not by hand.</h1>
+    <p>This page runs in a Docker container on my own DigitalOcean server.
+       A push to GitHub tested it, built the image, and deployed it here.</p>
+    <footer>Deployed commit <b>__GIT_SHA__</b></footer>
+  </main>
+</body>
+</html>
