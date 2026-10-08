@@ -12,6 +12,7 @@ services:
       - traefik.http.routers.${APP_ENV}.rule=Host(`${SITE_HOST}`)
       - traefik.http.routers.${APP_ENV}.entrypoints=websecure
       - traefik.http.routers.${APP_ENV}.tls=true
+      - traefik.http.routers.${APP_ENV}.tls.certresolver=letsencrypt
       - traefik.http.services.${APP_ENV}.loadbalancer.server.port=80
 
 networks:
