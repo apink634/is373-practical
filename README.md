@@ -28,11 +28,11 @@ A simple containerized website deployed to my own DigitalOcean Droplet with GitH
 
 ### Workflow runs, registry, and deployed version
 
-- QA workflow run: _link_
-- Production workflow run: _link_
+- QA workflow run: https://qa.anncarlos.me/
+- Production workflow run: https://anncarlos.me/
 - Image registry: https://hub.docker.com/r/apink634/is373-site
-- Deployed image tag / commit (QA): _tag_
-- Deployed image tag / commit (production): _tag_
+- Deployed image tag / commit (QA): https://github.com/apink634/is373-practical/actions/runs/37822473646
+- Deployed image tag / commit (production):https://github.com/apink634/is373-practical/actions/runs/37822473646
 
 ### The visible change
 
