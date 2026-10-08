@@ -26,7 +26,7 @@ A simple containerized website deployed to my own DigitalOcean Droplet with GitH
 
 ### Workflow runs, registry, and deployed version
 
-- QA workflow run: https://qa.anncarlos.me/
+- QA workflow run: https://github.com/apink634/is373-practical/actions/runs/37822455521
 - Production workflow run:  https://github.com/apink634/is373-practical/actions/runs/37822473646
 - Image registry: https://hub.docker.com/r/apink634/is373-site
 - Deployed image tag / commit (QA): qa- f8a00d665d37387e6e5090b0cdb7ab99a2da06d6
